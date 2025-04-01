@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Danh sách nhân viên
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Danh sách học sinh</h1>
+    <table id="customers" border="1">
+        <thead>
+            <th>Id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Ngày tạo</th>
+            <th>Ngày cập nhật</th>
+            <th colspan="2" id="mid">Action</th>
+        </thead>
+        {% for x in employees %}
+        <tr>
+            <td>{{ x.id }}</td>
+            <td>{{ x.first_name }}</td>
+            <td>{{ x.last_name }}</td>
+            <td>{{ x.created_at }}</td>
+            <td>{{ x.updated_at }}</td>
+            <td>
+                <a href=""><button id="up">Cập nhật</button></a>
+            </td>
+            <td>
+                <a href=""><button id="del">Xóa</button></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br><br>
+    <a href="{% url 'add_employee'%}"><button id="new3">Thêm nhân viên</button></a>
+</div>
+{% endblock %}
