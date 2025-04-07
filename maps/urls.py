@@ -7,5 +7,5 @@ urlpatterns = [
     path('', views.simplemap),
     path('co-ban/', views.simplemap, name="co-ban"),
     path('tim-kiem/', views.search, name="tim-kiem"),
-    
+    path('cinema/', views.cinema, name="cinema"),
 ]
