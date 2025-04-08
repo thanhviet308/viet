@@ -122,48 +122,47 @@ function getCurrentLocation() {
 // ------------------------------------------------------------
 
 // async function to load geojson
+// Fetch dữ liệu GeoJSON từ API (lấy từ database qua Django)
 async function fetchData(url) {
   try {
     const response = await fetch(url);
     const data = await response.json();
     return data;
   } catch (err) {
-    console.error(err);
+    console.error("Lỗi khi fetch dữ liệu:", err);
   }
 }
 
-// fetching data from geojson
+// Nhóm layer hiển thị các POI
 const poiLayers = L.layerGroup().addTo(map);
 
-// center map on the clicked marker
+// Khi nhấn vào marker -> zoom vào
 function clickZoom(e) {
   map.setView(e.target.getLatLng(), zoom);
 }
 
+// Tùy chọn hiển thị icon + popup cho từng điểm
 let geojsonOpts = {
   pointToLayer: function (feature, latlng) {
     return L.marker(latlng, {
       icon: L.divIcon({
-        className: "cinema-icon", // Sử dụng CSS để làm đẹp
-        html: "<span class='emoji'>🎥</span>", // Chỉ hiển thị emoji
-        iconSize: [40, 40], // Kích thước tổng thể
-        iconAnchor: [20, 20], // Căn giữa icon
-        popupAnchor: [0, -25], // Điều chỉnh vị trí popup
+        className: "cinema-icon",
+        html: "<span class='emoji'>🎥</span>",
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -25],
       }),
     })
-      .bindPopup(
-        "🎥 Rạp chiếu phim" +
-        "<br><b>" +
-        feature.properties.name +
-        "</b>"
-      )
+      .bindPopup("🎥 Rạp chiếu phim<br><b>" + feature.properties.name + "</b>")
       .on("click", clickZoom);
   }
 };
+
 const layersContainer = document.querySelector(".layers");
-
 const layersButton = "all layers";
+const arrayLayers = ["cinema"]; // danh sách layer
 
+// Tạo checkbox cho từng lớp
 function generateButton(name) {
   const id = name === layersButton ? "all-layers" : name;
 
@@ -178,62 +177,69 @@ function generateButton(name) {
 
   layersContainer.insertAdjacentHTML("beforeend", templateLayer);
 
-  // Đảm bảo sự kiện được thêm sau khi nút được tạo ra
   const checkbox = document.querySelector(`#${id}`);
   checkbox.addEventListener("change", (e) => {
-    console.log(`${name} checkbox clicked. Checked: ${e.target.checked}`);
     showHideLayer(e.target);
   });
 }
 
 generateButton(layersButton);
 
-// add data to geoJSON layer and add to LayerGroup
-const arrayLayers = ["cinema"]; // Changed to include only "cinema"
+// Tải dữ liệu từ Django API
+arrayLayers.map((layerName) => {
+  generateButton(layerName);
 
-arrayLayers.map((json) => {
-  generateButton(json);
-  fetchData(`/static/data/${json}.json`).then((data) => {
-    window["layer_" + json] = L.geoJSON(data, geojsonOpts).addTo(map);
-  });
+  // ✅ Đường dẫn đúng theo Django URL patterns
+  fetchData(`/maps/api/geojson/${layerName}/`)
+    .then((data) => {
+      if (!data) return; // kiểm tra có dữ liệu không
+      const layer = L.geoJSON(data, geojsonOpts).addTo(map);
+      window["layer_" + layerName] = layer;
+    });
 });
 
+// Xử lý khi checkbox được nhấn
 document.addEventListener("click", (e) => {
   const target = e.target;
-
   const itemInput = target.closest(".item");
-
   if (!itemInput) return;
-
-  console.log("Checkbox clicked:", target); // Kiểm tra khi checkbox được nhấn
   showHideLayer(target);
 });
 
 function showHideLayer(target) {
-  console.log("showHideLayer called for:", target.id); // Kiểm tra hàm showHideLayer
+  const id = target.id;
 
-  if (target.id === "all-layers") {
-    console.log("All layers checkbox changed.");
-    arrayLayers.map((json) => {
-      checkedType(json, target.checked);
+  if (id === "all-layers") {
+    arrayLayers.forEach((layerName) => {
+      checkedType(layerName, target.checked);
     });
   } else {
-    checkedType(target.id, target.checked);
+    checkedType(id, target.checked);
   }
+
   const checkedBoxes = document.querySelectorAll("input[name=item]:checked");
   document.querySelector("#all-layers").checked =
-    checkedBoxes.length - (document.querySelector("#all-layers").checked === true ? 1 : 0) < 1 ? false : true;
+    checkedBoxes.length === arrayLayers.length;
 }
-function checkedType(id, type) {
-  console.log("checkedType called for:", id, type); // Kiểm tra xem có thêm hoặc xóa layer không
-  map[type ? "addLayer" : "removeLayer"](window["layer_" + id]);
 
-  if (window["layer_" + id]) {
-    map.fitBounds(window["layer_" + id].getBounds(), { padding: [50, 50] });
+function checkedType(id, type) {
+  const layer = window["layer_" + id];
+  if (!layer) {
+    console.warn(`Layer "${id}" chưa load xong!`);
+    return;
+  }
+
+  if (type) {
+    map.addLayer(layer);
+    map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+  } else {
+    map.removeLayer(layer);
   }
 
   document.querySelector(`#${id}`).checked = type;
 }
+
+
 // Thêm thư viện Leaflet Routing Machine nếu chưa có
 // < link rel = "stylesheet" href = "https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 //   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
