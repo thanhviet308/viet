@@ -154,3 +154,51 @@ input[type="checkbox"]:checked {
   font-size: 32px;
   /* Điều chỉnh kích thước emoji */
 }
+
+/* === SIDEBAR === */
+.sidebar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  width: 500px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transform: translateX(-110%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  /* Giảm kích cỡ chữ */
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-content {
+  margin-top: 30px;
+  flex: 1;
+}
+
+/* Nút đóng */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* === CHỈ DỊCH CONTROL KHI SIDEBAR MỞ === */
+.leaflet-left.shifted {
+  transform: translateX(510px);
+  /* 300px sidebar + 10px khoảng cách */
+  transition: transform 0.3s ease;
+}

@@ -142,21 +142,6 @@ function clickZoom(e) {
 }
 
 // Tùy chọn hiển thị icon + popup cho từng điểm
-let geojsonOpts = {
-  pointToLayer: function (feature, latlng) {
-    return L.marker(latlng, {
-      icon: L.divIcon({
-        className: "cinema-icon",
-        html: "<span class='emoji'>🎥</span>",
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
-        popupAnchor: [0, -25],
-      }),
-    })
-      .bindPopup("🎥 Rạp chiếu phim<br><b>" + feature.properties.name + "</b>")
-      .on("click", clickZoom);
-  }
-};
 
 const layersContainer = document.querySelector(".layers");
 const layersButton = "all layers";

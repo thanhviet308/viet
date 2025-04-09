@@ -8,6 +8,7 @@
 
 {% block map %}
   <link rel="stylesheet" href="{% static 'css/map/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/cinema/style.css' %}" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
   <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
@@ -17,14 +18,26 @@
 {% endblock %}
 
 {% block content %}
+  <!-- Sidebar bên phải -->
+
   <div class="container-fluid">
     <div class="row" style="height: 650px">
-      <div id="map"></div>
+      <div id="map">
+        <div id="sidebar" class="sidebar">
+          <div class="sidebar-content">
+            <!-- Nội dung sẽ được thêm bằng JavaScript -->
+          </div>
+          <button class="close-btn" onclick="closeSidebar()">✖</button>
+        </div>
+      </div>
     </div>
     <ul class="layers"></ul>
   </div>
 {% endblock %}
 
 {% block script %}
-  <script src="{% static 'js/map/script.js' %}"></script>
+  <script src="{% static 'js/cinema/map-config.js' %}"></script>
+  <script src="{% static 'js/cinema/layer-control.js' %}"></script>
+  <script src="{% static 'js/cinema/routing.js' %}"></script>
+  <script src="{% static 'js/cinema/script.js' %}"></script>
 {% endblock %}
